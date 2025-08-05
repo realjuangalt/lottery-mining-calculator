@@ -110,3 +110,7 @@ This project is open-source and available for personal or educational use. No wa
 ## Contact
 For issues or suggestions, please open an issue on the repository or contact the developer.
 
+---
+
+**Vibe coded by [Juan Galt](https://x.com/juansgalt)**
+
