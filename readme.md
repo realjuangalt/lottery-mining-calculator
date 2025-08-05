@@ -21,13 +21,13 @@ The **Bitcoin Lottery Mining vs. Powerball Calculator** is a web-based tool that
 - No external dependencies; the calculator is a standalone HTML file with embedded CSS and JavaScript.
 
 ## Installation
-1. Download the `calculator.html` file from the repository.
+1. Download the `index.html` file from the repository.
 2. Save it to your local machine or a server.
 3. No additional setup is required, as the file is self-contained.
 
 ## Usage
 1. **Open the Calculator**:
-   - Open `calculator.html` in a browser using `file://` (local) or host it on a server (e.g., `python -m http.server` for local testing).
+   - Open `index.html` in a browser using `file://` (local) or host it on a server (e.g., `python -m http.server` for local testing).
 2. **Select a Mining Model**:
    - Choose **Solo Mining** or **Parasite Pool** from the dropdown.
 3. **Enter Inputs**:
@@ -41,9 +41,10 @@ The **Bitcoin Lottery Mining vs. Powerball Calculator** is a web-based tool that
 4. **Calculate**:
    - Click the **Calculate Odds** button to view results.
 5. **View Results**:
-   - **Main Table**: Annual odds (1 in X) and reward at stake ($356,250 for Solo, $114,000 for Parasite Pool, $500M for Powerball).
+   - **Main Table**: Annual odds (1 in X) and reward at stake for each model vs Powerball.
    - **Per-Try Table**: Odds per try (per block or ticket) and reward at stake.
-   - **Odds Comparison**: Explains which model has better odds and engagement.
+   - **Model-Specific Breakdown**: Detailed explanation of rewards and Powerball comparisons.
+   - **Odds Comparison**: Explains which model has better odds vs Powerball.
    - **Math Explanation**: Describes the formula for annual odds.
 
 ### Example Output (Defaults)
@@ -64,7 +65,7 @@ Annual Odds Calculation: The annual odds represent the probability of winning a 
 ```
 
 ## Technical Details
-- **File**: `calculator.html` (single HTML file with embedded CSS and JavaScript).
+- **File**: `index.html` (single HTML file with embedded CSS and JavaScript).
 - **HTML Structure**:
   - Input fields for mining model, hash rates, block reward, Bitcoin price, and costs.
   - Two tables for output: main (annual odds, reward) and per-try (odds per try, reward).
@@ -80,7 +81,7 @@ Annual Odds Calculation: The annual odds represent the probability of winning a 
   - Uses `window.calculateOdds` for global access to avoid `ReferenceError`.
 - **Math**:
   - **Solo Mining**: Annual odds = 1 - (1 - (hashRate / networkHashRate))^52,500; per-try = hashRate / networkHashRate; reward = 3.125 BTC × $114,000.
-  - **Parasite Pool**: Annual odds = 1 - (1 - (parasiteHashRate / networkHashRate))^52,500; per-try = parasiteHashRate / networkHashRate; reward = 1 BTC ($114,000).
+  - **Parasite Pool**: Annual odds = 1 - (1 - (parasiteHashRate / networkHashRate))^52,500; per-try = parasiteHashRate / networkHashRate; Big Win = 1 BTC ($114,000), Small Reward = proportional share of 2.125 BTC.
   - **Powerball**: Annual odds = 1 - (1 - 1/292,200,000)^156; per-try = 1/292,200,000; reward = $500M.
 - **Defaults**:
   - Your Hash Rate: 1 TH/s.
