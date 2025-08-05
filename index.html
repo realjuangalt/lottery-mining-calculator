@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Lottery Mining vs. Powerball Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+        }
+        .calculator {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .hash-rate-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        input[type="number"], select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .hash-rate-input input[type="number"] {
+            flex: 2;
+        }
+        .hash-rate-input select {
+            flex: 1;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #1557b0;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .comparison-section {
+            margin: 15px 0;
+            padding: 10px;
+            border-left: 4px solid #1a73e8;
+            background: #f9f9f9;
+        }
+        .comparison-section h3 {
+            margin: 0 0 10px;
+        }
+        .comparison-table, .per-try-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .comparison-table th, .comparison-table td, .per-try-table th, .per-try-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        .comparison-table th, .per-try-table th {
+            background: #1a73e8;
+            color: white;
+        }
+        .error {
+            color: red;
+            text-align: center;
+        }
+        #parasitePoolInputs {
+            display: none;
+        }
+        .static-info, .math-explanation {
+            margin: 15px 0;
+            font-style: italic;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .calculator {
+                padding: 15px;
+            }
+            .comparison-table th, .comparison-table td, .per-try-table th, .per-try-table td {
+                font-size: 14px;
+                padding: 6px;
+            }
+            .hash-rate-input {
+                display: flex;
+                gap: 5px;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Bitcoin Lottery Mining vs. Powerball Calculator</h1>
+    <div class="calculator">
+        <div class="input-group">
+            <label for="miningModel">Mining Model:</label>
+            <select id="miningModel" onchange="toggleInputs()">
+                <option value="solo">Solo Mining</option>
+                <option value="parasitePool">Parasite Pool</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="hashRate">Your Hash Rate:</label>
+            <div class="hash-rate-input">
+                <input type="number" id="hashRate" value="1" step="0.1" min="0">
+                <select id="hashRateUnit">
+                    <option value="1000">KH/s</option>
+                    <option value="1000000">MH/s</option>
+                    <option value="1000000000">GH/s</option>
+                    <option value="1000000000000" selected>TH/s</option>
+                    <option value="1000000000000000">PH/s</option>
+                    <option value="1000000000000000000">EH/s</option>
+                </select>
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="networkHashRate">Bitcoin Network Hash Rate:</label>
+            <div class="hash-rate-input">
+                <input type="number" id="networkHashRate" value="944" step="1" min="0">
+                <select id="networkHashRateUnit">
+                    <option value="1000">KH/s</option>
+                    <option value="1000000">MH/s</option>
+                    <option value="1000000000">GH/s</option>
+                    <option value="1000000000000">TH/s</option>
+                    <option value="1000000000000000">PH/s</option>
+                    <option value="1000000000000000000" selected>EH/s</option>
+                </select>
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="blockReward">Bitcoin Block Reward (BTC):</label>
+            <input type="number" id="blockReward" value="3.125" step="0.1" min="0">
+        </div>
+        <div class="input-group">
+            <label for="btcPrice">Bitcoin Price ($):</label>
+            <input type="number" id="btcPrice" value="114000" step="1000" min="0">
+        </div>
+        <div class="input-group">
+            <label for="electricityCost">Electricity Cost per Year ($):</label>
+            <input type="number" id="electricityCost" value="40" step="10" min="0">
+        </div>
+        <div class="input-group">
+            <label for="hardwareCost">Hardware Cost per Year ($):</label>
+            <input type="number" id="hardwareCost" value="200" step="10" min="0">
+        </div>
+        <div class="input-group" id="parasitePoolInputs">
+            <label for="parasiteHashRate">Parasite Pool Hash Rate:</label>
+            <div class="hash-rate-input">
+                <input type="number" id="parasiteHashRate" value="10" step="0.1" min="0">
+                <select id="parasiteHashRateUnit">
+                    <option value="1000">KH/s</option>
+                    <option value="1000000">MH/s</option>
+                    <option value="1000000000">GH/s</option>
+                    <option value="1000000000000">TH/s</option>
+                    <option value="1000000000000000" selected>PH/s</option>
+                    <option value="1000000000000000000">EH/s</option>
+                </select>
+            </div>
+        </div>
+        <div class="static-info">
+            <p>Powerball Jackpot: $500,000,000 (fixed, typical large jackpot size).</p>
+            <p>Powerball Annual Cost: $312 (calculated as $2 per ticket × 156 draws per year, based on three draws weekly: Monday, Wednesday, Saturday).</p>
+        </div>
+        <button onclick="window.calculateOdds()">Calculate Odds</button>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Toggle input visibility based on mining model
+        function toggleInputs() {
+            const model = document.getElementById('miningModel').value;
+            document.getElementById('parasitePoolInputs').style.display = model === 'parasitePool' ? 'block' : 'none';
+        }
+
+        // Initialize input visibility
+        toggleInputs();
+
+        // Calculate odds
+        window.calculateOdds = function() {
+            // Get inputs
+            const model = document.getElementById('miningModel').value;
+            const hashRate = parseFloat(document.getElementById('hashRate').value) * parseFloat(document.getElementById('hashRateUnit').value);
+            const networkHashRate = parseFloat(document.getElementById('networkHashRate').value) * parseFloat(document.getElementById('networkHashRateUnit').value);
+            const blockReward = parseFloat(document.getElementById('blockReward').value);
+            const btcPrice = parseFloat(document.getElementById('btcPrice').value);
+            const electricityCost = parseFloat(document.getElementById('electricityCost').value);
+            const hardwareCost = parseFloat(document.getElementById('hardwareCost').value);
+            const parasiteHashRate = model === 'parasitePool' ? parseFloat(document.getElementById('parasiteHashRate').value) * parseFloat(document.getElementById('parasiteHashRateUnit').value) : 0;
+
+            // Validate inputs
+            if (isNaN(hashRate) || isNaN(networkHashRate) || isNaN(blockReward) || isNaN(btcPrice) ||
+                isNaN(electricityCost) || isNaN(hardwareCost) || 
+                hashRate <= 0 || networkHashRate <= 0 || blockReward <= 0 || btcPrice <= 0 ||
+                electricityCost < 0 || hardwareCost < 0 ||
+                (model === 'parasitePool' && (isNaN(parasiteHashRate) || parasiteHashRate <= 0))) {
+                document.getElementById('results').innerHTML = '<p class="error">Please enter valid positive numbers for all fields (costs can be 0).</p>';
+                return;
+            }
+
+            // Constants
+            const blocksPerYear = 52500;
+            const powerballDrawsPerYear = 156;
+            const powerballOddsPerDraw = 1 / 292200000;
+
+            // Powerball calculations
+            const powerballAnnualOdds = 1 - Math.pow(1 - powerballOddsPerDraw, powerballDrawsPerYear);
+            const powerballOddsPerTry = powerballOddsPerDraw;
+            const powerballReward = 500000000;
+
+            // Mining calculations
+            let miningResult = '';
+            let perTryResult = '';
+            let miningOdds, miningOddsPerTry, miningReward, modelName;
+            let parasiteRewardBreakdown = '';
+            
+            // Initialize parasiteRewardBreakdown for Parasite Pool
+            if (model === 'parasitePool') {
+                const userShareOfPool = hashRate / parasiteHashRate;
+                const userProportionalReward = userShareOfPool * 2.125 * btcPrice;
+                const finderReward = 1 * btcPrice;
+                const miningOddsPerTry = parasiteHashRate / networkHashRate;
+                
+                parasiteRewardBreakdown = `
+                    <h3>Parasite Pool: Two Ways to Win</h3>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h4 style="margin-top: 0; color: #1a73e8;">🎯 Big Win: $${Math.round(finderReward).toLocaleString()} (1 in ${Math.round(1 / (userShareOfPool * miningOddsPerTry)).toLocaleString()})</h4>
+                        <p style="margin: 5px 0;">When the pool wins a block, you have a chance to be the lucky miner who found it. ${Math.round(292200000 / (userShareOfPool * miningOddsPerTry)).toLocaleString()}x better odds than Powerball!</p>
+                        
+                        <h4 style="margin-top: 20px; color: #28a745;">💰 Small Reward: $${Math.round(userProportionalReward).toLocaleString()} (1 in ${Math.round(1 / miningOddsPerTry).toLocaleString()})</h4>
+                        <p style="margin: 5px 0;">When the pool wins, you get your proportional share of 2.125 BTC, regardless of who found the block. ${Math.round(292200000 / (1 / miningOddsPerTry)).toLocaleString()}x better odds than Powerball!</p>
+                        
+                        <div style="background: #e8f5e8; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                            <strong>🎉 vs Powerball:</strong> Your Small Reward odds (1 in ${Math.round(1 / miningOddsPerTry).toLocaleString()}) are ${Math.round(292200000 / (1 / miningOddsPerTry)).toLocaleString()}x better than Powerball's jackpot odds (1 in 292,200,000)!
+                        </div>
+                        <div style="background: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #ffc107;">
+                            <strong>⚡ vs Powerball:</strong> Your Small Reward odds (1 in ${Math.round(1 / miningOddsPerTry).toLocaleString()}) are ${Math.round(292200000 / (1 / miningOddsPerTry)).toLocaleString()}x better than Powerball's jackpot odds (1 in 292,200,000)!
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (model === 'solo') {
+                // Solo Mining
+                modelName = 'Solo Mining';
+                miningOddsPerTry = hashRate / networkHashRate;
+                miningOdds = 1 - Math.pow(1 - miningOddsPerTry, blocksPerYear);
+                miningReward = blockReward * btcPrice;
+                miningResult = `
+                    <tr>
+                        <td>${modelName}</td>
+                        <td>1 in ${Math.round(1 / miningOdds).toLocaleString()}</td>
+                        <td>$${Math.round(miningReward).toLocaleString()}</td>
+                    </tr>
+                `;
+                perTryResult = `
+                    <tr>
+                        <td>${modelName}</td>
+                        <td>1 in ${Math.round(1 / miningOddsPerTry).toLocaleString()}</td>
+                        <td>$${Math.round(miningReward).toLocaleString()}</td>
+                    </tr>
+                `;
+                
+                // Add Solo Mining explanation with Powerball comparison
+                parasiteRewardBreakdown = `
+                    <h3>Solo Mining: vs Powerball</h3>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h4 style="margin-top: 0; color: #1a73e8;">🎯 Block Reward: $${Math.round(miningReward).toLocaleString()} (1 in ${Math.round(1 / miningOddsPerTry).toLocaleString()})</h4>
+                        <p style="margin: 5px 0;">When you find a block, you get the full ${blockReward} BTC reward. ${Math.round(292200000 / (1 / miningOddsPerTry)).toLocaleString()}x better odds than Powerball's jackpot!</p>
+                        
+                        <div style="background: #e8f5e8; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                            <strong>🎉 vs Powerball:</strong> Your Solo Mining odds (1 in ${Math.round(1 / miningOddsPerTry).toLocaleString()}) are ${Math.round(292200000 / (1 / miningOddsPerTry)).toLocaleString()}x better than Powerball's jackpot odds (1 in 292,200,000)!
+                        </div>
+                    </div>
+                `;
+            } else if (model === 'parasitePool') {
+                // Parasite Pool (1 BTC to finder, proportional rewards for all when pool wins)
+                modelName = 'Parasite Pool';
+                miningOddsPerTry = parasiteHashRate / networkHashRate; // Pool's chance to win any reward
+                miningOdds = 1 - Math.pow(1 - miningOddsPerTry, blocksPerYear);
+                
+                // Calculate user's share of the pool
+                const userShareOfPool = hashRate / parasiteHashRate;
+                const userProportionalReward = userShareOfPool * 2.125 * btcPrice; // User's share of 2.125 BTC
+                const finderReward = 1 * btcPrice; // 1 BTC for finder
+                const totalPoolReward = 3.125 * btcPrice; // Total pool reward per block
+                
+                // Calculate user's expected reward (weighted average of big win and small reward)
+                const userExpectedReward = finderReward * userShareOfPool * miningOddsPerTry + userProportionalReward * miningOddsPerTry;
+                
+                miningResult = `
+                    <tr>
+                        <td>${modelName}</td>
+                        <td>1 in ${Math.round(1 / miningOdds).toLocaleString()}</td>
+                        <td>$${Math.round(finderReward).toLocaleString()} (Big Win) + $${Math.round(userProportionalReward).toLocaleString()} (Small Reward)</td>
+                    </tr>
+                `;
+                perTryResult = `
+                    <tr>
+                        <td>${modelName}</td>
+                        <td>1 in ${Math.round(1 / miningOddsPerTry).toLocaleString()}</td>
+                        <td>$${Math.round(finderReward).toLocaleString()} (Big Win) + $${Math.round(userProportionalReward).toLocaleString()} (Small Reward)</td>
+                    </tr>
+                `;
+                
+                // Parasite Pool breakdown already created above
+                console.log('Parasite Pool breakdown already created, length:', parasiteRewardBreakdown.length);
+            }
+
+            // Comparison output
+            const oddsComparison = miningOdds > powerballAnnualOdds 
+                ? `${modelName} has better annual odds (1 in ${Math.round(1 / miningOdds).toLocaleString()}) than Powerball (1 in ${Math.round(1 / powerballAnnualOdds).toLocaleString()}) for winning any reward. However, Powerball's massive $500,000,000 jackpot dwarfs ${modelName}'s total potential rewards. ${modelName}'s 52,500 annual attempts make it more engaging than Powerball's 156 draws.`
+                : `Powerball has better annual odds (1 in ${Math.round(1 / powerballAnnualOdds).toLocaleString()}) than ${modelName} (1 in ${Math.round(1 / miningOdds).toLocaleString()}) for its $500,000,000 jackpot. However, ${modelName}'s 52,500 annual attempts make it more engaging than Powerball's 156 draws.`;
+
+            // Annual odds math explanation
+            const mathExplanation = `
+                <p class="math-explanation"><strong>Annual Odds Calculation:</strong> The annual odds represent the probability of winning a reward in a year. For Solo Mining, this is the probability of winning the full block reward, calculated as 1 minus the probability of not winning any of the 52,500 blocks: 1 - (1 - per-block odds)^52,500, where per-block odds are your hash rate divided by the network hash rate (e.g., 1 TH/s ÷ 944 EH/s). For Parasite Pool, annual odds reflect the pool’s probability of winning any reward (1 BTC or proportional), using the pool’s hash rate divided by the network hash rate (e.g., 10 PH/s ÷ 944 EH/s). For Powerball, annual odds are 1 - (1 - 1/292,200,000)^156, based on 156 draws. Odds per try are per block (Bitcoin) or per ticket (Powerball), with the reward at stake being the potential payout for a win.</p>
+            `;
+
+                        // Display Results
+            document.getElementById('results').innerHTML = `
+                <div class="comparison-section">
+                    <h3>Comparison: ${modelName} vs. Powerball</h3>
+                    ${model === 'parasitePool' ? parasiteRewardBreakdown : ''}
+                    <table class="comparison-table">
+                        <tr>
+                            <th>Model</th>
+                            <th>Annual Odds</th>
+                            <th>Reward at Stake</th>
+                        </tr>
+                        ${miningResult}
+                        <tr>
+                            <td>Powerball</td>
+                            <td>1 in ${Math.round(1 / powerballAnnualOdds).toLocaleString()}</td>
+                            <td>$${Math.round(powerballReward).toLocaleString()}</td>
+                        </tr>
+                    </table>
+                    <h3>Odds per Try</h3>
+                    <table class="per-try-table">
+                        <tr>
+                            <th>Model</th>
+                            <th>Odds per Try</th>
+                            <th>Reward at Stake</th>
+                        </tr>
+                        ${perTryResult}
+                        <tr>
+                            <td>Powerball</td>
+                            <td>1 in ${Math.round(1 / powerballOddsPerTry).toLocaleString()}</td>
+                            <td>$${Math.round(powerballReward).toLocaleString()}</td>
+                        </tr>
+                    </table>
+                    <p><strong>Odds Comparison:</strong> ${oddsComparison}</p>
+                    ${mathExplanation}
+                </div>
+            `;
+        };
+    </script>
+</body>
+</html>
