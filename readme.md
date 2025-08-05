@@ -105,7 +105,7 @@ Annual Odds Calculation: The annual odds represent the probability of winning a 
 - Incorporate cost analysis (e.g., luck per dollar) if requested.
 
 ## License
-This project is open-source and available for personal or educational use. No warranty is provided.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
 For issues or suggestions, please open an issue on the repository or contact the developer.
